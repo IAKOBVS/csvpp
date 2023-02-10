@@ -14,7 +14,7 @@ extern "C" {
 #define FILENAME (char *)"/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
 #define deb(THING) std::cout << THING << '\n'
 
-namespace jcsv {
+namespace ccsv {
 	class Data {
 		public:
 			class Record {
@@ -40,31 +40,37 @@ namespace jcsv {
 			{
 				return 0;
 			}
+
+			void init(char *filename)
+			{
+				char *fileStr;
+				::cat(filename, &fileStr);
+				int w = 0;
+				char delim = ',';
+				for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
+					if (fileStr[i] == delim)
+						++w;
+				char *token;
+				char delimPtr[] = {delim, '\n'};
+				char *savePtr = fileStr;
+				this->keys.reserve(++w);
+				for (int i = 0; i < w; ++i)
+					this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+				for (int line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
+					ccsv::Data::Record record;
+					this->records.push_back(record);
+					this->records[line].record.push_back(token);
+					for (int i = 1; i < w; ++i)
+						this->records[line].record.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+				}
+				free(fileStr);
+			}
 	};
 }
 
 int main()
 {
-	char *fileStr;
-	::cat(FILENAME, &fileStr);
-	int w = 0;
-	char delim = ',';
-	for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
-		if (fileStr[i] == delim)
-			++w;
-	char *token;
-	char delimPtr[] = {delim, '\n'};
-	jcsv::Data data;
-	data.keys.reserve(++w);
-	for (int i = 0; i < w; ++i)
-		data.keys.push_back(strtok_r(fileStr, delimPtr, &fileStr));
-	for (int line = 0; (token = strtok_r(fileStr, delimPtr, &fileStr)); ++line) {
-		jcsv::Data::Record record;
-		data.records.push_back(record);
-		data.records[line].record.push_back(token);
-		for (int i = 1; i < w; ++i) {
-			data.records[line].record.push_back(strtok_r(fileStr, delimPtr, &fileStr));
-		}
-	}
+	ccsv::Data data;
+	data.init(FILENAME);
 	return 0;
 }
