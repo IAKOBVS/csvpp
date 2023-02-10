@@ -26,6 +26,13 @@ namespace jcsv {
 	};
 }
 
+void print(std::vector <int> const &a) {
+   std::cout << "The vector elements are : ";
+
+   for(int i=0; i < a.size(); i++)
+   std::cout << a.at(i) << ' ';
+}
+
 int main()
 {
 	char *fileStr;
@@ -45,7 +52,7 @@ int main()
 		jcsv::Data::Record record;
 		data.records.push_back(record);
 		data.records[line].record.push_back(token);
-		for (int i = 0; i < w; ++i)
+		for (int i = 0; i < w && (token = strtok_r(fileStr, delimPtr, &fileStr)); ++i)
 			data.records[line].record.push_back(token);
 	}
 	return 0;
