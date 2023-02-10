@@ -21,7 +21,6 @@ namespace jcsv {
 			public:
 				std::vector<std::string> record;
 		};
-		public:
 			char *title;
 			std::vector<std::string> keys;
 			std::vector<Record> records;
