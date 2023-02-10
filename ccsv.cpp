@@ -17,13 +17,13 @@ extern "C" {
 namespace jcsv {
 	class Data {
 		public:
-			char *title;
-			std::vector<std::string> keys;
-
 			class Record {
 				public:
 					std::vector<std::string> record;
 			};
+
+			char *title;
+			std::vector<std::string> keys;
 			std::vector<Record> records;
 
 			int findKey(char *toFind)
