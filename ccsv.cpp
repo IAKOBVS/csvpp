@@ -28,8 +28,7 @@ namespace ccsv {
 
 			int findKey(char *toFind)
 			{
-				int i = 0;
-				for (int j = this->keys.size(); i < j; ++i)
+				for (int i =0, j = this->keys.size(); i < j; ++i)
 					if (this->keys[i].find(toFind))
 						return i;
 				perror("");
