@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
 
 #include <string.h>
+/* #include <stdlib.h> */
 extern "C" {
 #include "/home/james/c/nix.c/nix.h"
 #include "/home/james/c/jArray/jarr.h"
@@ -23,14 +25,22 @@ namespace jcsv {
 					std::vector<std::string> record;
 			};
 			std::vector<Record> records;
+
+			int findKey(char *toFind)
+			{
+				int i = 0;
+				for (int j = this->keys.size(); i < j; ++i)
+					if (this->keys[i].find(toFind))
+						return i;
+				perror("");
+				return 0;
+			}
+
+			int findRecords(char *toFind)
+			{
+				return 0;
+			}
 	};
-}
-
-void print(std::vector <int> const &a) {
-   std::cout << "The vector elements are : ";
-
-   for(int i=0; i < a.size(); i++)
-   std::cout << a.at(i) << ' ';
 }
 
 int main()
@@ -52,8 +62,9 @@ int main()
 		jcsv::Data::Record record;
 		data.records.push_back(record);
 		data.records[line].record.push_back(token);
-		for (int i = 0; i < w && (token = strtok_r(fileStr, delimPtr, &fileStr)); ++i)
-			data.records[line].record.push_back(token);
+		for (int i = 1; i < w; ++i) {
+			data.records[line].record.push_back(strtok_r(fileStr, delimPtr, &fileStr));
+		}
 	}
 	return 0;
 }
