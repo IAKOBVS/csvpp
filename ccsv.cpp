@@ -38,7 +38,7 @@ namespace ccsv {
 
 			int findRecords(char *toFind)
 			{
-				return 0;
+				return 1;
 			}
 
 			void init(char *filename)
