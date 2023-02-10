@@ -3,12 +3,13 @@
 #include <vector>
 #include <assert.h>
 
-#include <string.h>
+
 extern "C" {
 #include "/home/james/c/nix.c/nix.h"
 #include "/home/james/c/jArray/jarr.h"
 #include "/home/james/c/jString/jstr.h"
 }
+#include <string.h>
 
 #define FILENAME (char *)"/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
 #define deb(THING) \
@@ -17,12 +18,13 @@ extern "C" {
 namespace jcsv {
 	class Data {
 		public:
+			char *title;
+			std::vector<std::string> keys;
+
 			class Record {
 				public:
 					std::vector<std::string> record;
 			};
-			char *title;
-			std::vector<std::string> keys;
 			std::vector<Record> records;
 	};
 }
