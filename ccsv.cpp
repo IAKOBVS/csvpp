@@ -40,29 +40,34 @@ namespace ccsv {
 				return 1;
 			}
 
-			void init(char *filename)
+			int init(char *filename)
 			{
-				char *fileStr;
-				::cat(filename, &fileStr);
-				int w = 0;
-				char delim = ',';
-				for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
-					if (fileStr[i] == delim)
-						++w;
-				char *token;
-				char delimPtr[] = {delim, '\n'};
-				char *savePtr = fileStr;
-				this->keys.reserve(++w);
-				for (int i = 0; i < w; ++i)
-					this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
-				for (int line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
-					ccsv::Data::Record record;
-					this->records.push_back(record);
-					this->records[line].record.push_back(token);
-					for (int i = 1; i < w; ++i)
-						this->records[line].record.push_back(strtok_r(savePtr, delimPtr, &savePtr));
-				}
-				free(fileStr);
+				do {
+					char *fileStr;
+					if (!::cat(filename, &fileStr))
+						break;
+					int w = 0;
+					char delim = ',';
+					for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
+						if (fileStr[i] == delim)
+							++w;
+					char *token;
+					char delimPtr[] = {delim, '\n'};
+					char *savePtr = fileStr;
+					this->keys.reserve(++w);
+					for (int i = 0; i < w; ++i)
+						this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+					for (int line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
+						ccsv::Data::Record record;
+						this->records.push_back(record);
+						this->records[line].record.push_back(token);
+						for (int i = 1; i < w; ++i)
+							this->records[line].record.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+					}
+					free(fileStr);
+					return 1;
+				} while (0);
+				return 0;
 			}
 	};
 }
