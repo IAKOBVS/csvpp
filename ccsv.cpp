@@ -17,10 +17,10 @@ extern "C" {
 namespace jcsv {
 	class Data {
 		public:
-		class Record {
-			public:
-				std::vector<std::string> record;
-		};
+			class Record {
+				public:
+					std::vector<std::string> record;
+			};
 			char *title;
 			std::vector<std::string> keys;
 			std::vector<Record> records;
