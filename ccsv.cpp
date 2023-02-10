@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -44,7 +45,7 @@ int main()
 		jcsv::Data::Record record;
 		data.records.push_back(record);
 		data.records[line].record.push_back(token);
-		for (int i = 1; i < w && (token = strtok_r(fileStr, delimPtr, &fileStr)); ++i)
+		for (int i = 0; i < w; ++i)
 			data.records[line].record.push_back(token);
 	}
 	return 0;
