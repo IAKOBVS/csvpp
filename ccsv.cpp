@@ -3,7 +3,6 @@
 #include <vector>
 #include <assert.h>
 
-
 extern "C" {
 #include "/home/james/c/nix.c/nix.h"
 #include "/home/james/c/jArray/jarr.h"
@@ -31,25 +30,24 @@ namespace jcsv {
 
 int main()
 {
-	char *dest;
-	::cat(FILENAME, &dest);
+	char *fileStr;
+	::cat(FILENAME, &fileStr);
 	int w = 0;
 	char delim = ',';
-	for (int i = 0; dest[i] != '\n' && dest[i]; ++i)
-		if (dest[i] == delim)
+	for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
+		if (fileStr[i] == delim)
 			++w;
 	char *token;
-	char *savePtr = dest;
 	char delimPtr[] = {delim, '\n'};
 	jcsv::Data data;
 	data.keys.reserve(++w);
 	for (int i = 0; i < w; ++i)
-		data.keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
-	for (int line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
+		data.keys.push_back(strtok_r(fileStr, delimPtr, &fileStr));
+	for (int line = 0; (token = strtok_r(fileStr, delimPtr, &fileStr)); ++line) {
 		jcsv::Data::Record record;
 		data.records.push_back(record);
 		data.records[line].record.push_back(token);
-		for (int i = 1; i < w && (token = strtok_r(savePtr, delimPtr, &savePtr)); ++i)
+		for (int i = 1; i < w && (token = strtok_r(fileStr, delimPtr, &fileStr)); ++i)
 			data.records[line].record.push_back(token);
 	}
 	return 0;
