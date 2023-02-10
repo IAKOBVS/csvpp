@@ -1,7 +1,5 @@
-#include <iostream>
 #include <string>
 #include <vector>
-#include <assert.h>
 
 #include <string.h>
 extern "C" {
@@ -11,8 +9,7 @@ extern "C" {
 }
 
 #define FILENAME (char *)"/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
-#define deb(THING) \
-	std::cout << THING << '\n'
+#define deb(THING) std::cout << THING << '\n'
 
 namespace jcsv {
 	class Data {
