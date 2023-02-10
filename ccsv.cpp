@@ -47,9 +47,8 @@ int main()
 		jcsv::Data::Record record;
 		data.records.push_back(record);
 		data.records[line].record.push_back(token);
-		for (int i = 1; i < w; ++i)
-			if ((token = strtok_r(savePtr, delimPtr, &savePtr)))
-				data.records[line].record.push_back(token);
+		for (int i = 1; i < w && (token = strtok_r(savePtr, delimPtr, &savePtr)); ++i)
+			data.records[line].record.push_back(token);
 	}
 	return 0;
 }
