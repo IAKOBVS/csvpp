@@ -41,6 +41,7 @@ namespace ccsv {
 					for (size_t j = 0, vecLen = this->records[i].record.size(); j < vecLen; ++j)
 						if (!this->records[i].record[j].find("recordName"))
 							return j;
+				perror("");
 				return 0;
 			}
 
