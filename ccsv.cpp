@@ -7,8 +7,8 @@
 /* #include <stdlib.h> */
 extern "C" {
 #include "/home/james/c/nix.c/nix.h"
-#include "/home/james/c/jArray/jarr.h"
-#include "/home/james/c/jString/jstr.h"
+/* #include "/home/james/c/jArray/jarr.h" */
+/* #include "/home/james/c/jString/jstr.h" */
 }
 
 #define FILENAME (char *)"/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
