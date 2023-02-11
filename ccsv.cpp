@@ -17,9 +17,8 @@ extern "C" {
 namespace ccsv {
 	class Data {
 		public:
-			class Record {
-				public:
-					std::vector<std::string> record;
+			struct Record {
+				std::vector<std::string> values;
 			};
 
 			const char *title;
@@ -28,18 +27,24 @@ namespace ccsv {
 
 			size_t keyIs(const char *toFind)
 			{
-				for (int i =0, j = this->keys.size(); i < j; ++i)
+				for (size_t i =0, j = this->keys.size(); i < j; ++i)
 					if (!this->keys[i].find(toFind))
 						return i;
 				perror("");
 				return 0;
 			}
 
+			void keyPrint(const char *keyName)
+			{
+				for (size_t i = 0, at = this->keyIs(keyName), vecLen = this->records[at].values.size(); i < vecLen; ++i)
+					std::cout << this->records[i].values[at] << '\n';
+			}
+
 			int recordIs(const char *recordName)
 			{
 				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
-					for (size_t j = 0, vecLen = this->records[i].record.size(); j < vecLen; ++j)
-						if (!this->records[i].record[j].find("recordName"))
+					for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
+						if (!this->records[i].values[j].find(recordName))
 							return j;
 				perror("");
 				return 0;
@@ -48,18 +53,16 @@ namespace ccsv {
 			void recordPrint(const char *recordName)
 			{
 				for (size_t i = 0, j = this->recordIs(recordName), vecLen = this->records.size(); i < vecLen; ++i)
-					std::cout << this->records[i].record[j] << '\n';
+					std::cout << this->records[i].values[j] << '\n';
 			}
 
-			void keyPrint(const char *keyName)
+			void print()
 			{
-				for (size_t i = 0, at = this->keyIs(keyName), vecLen = this->records[at].record.size(); i < vecLen; ++i)
-					std::cout << this->records[i].record[at] << '\n';
-			}
-
-			int findRecords(const char *toFind)
-			{
-				return 1;
+				for (size_t i = 0, iLen = this->records.size(); i < iLen; ++i) {
+					for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
+						std::cout << this->records[i].values[j] << ' ';
+					std::cout << '\n';
+				}
 			}
 
 			int init(const char *filename)
@@ -68,7 +71,7 @@ namespace ccsv {
 					char *fileStr;
 					if (!::cat((char *)filename, &fileStr))
 						break;
-					int w = 0;
+					size_t w = 0;
 					char delim = ',';
 					for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
 						if (fileStr[i] == delim)
@@ -77,14 +80,14 @@ namespace ccsv {
 					char delimPtr[] = {delim, '\n'};
 					char *savePtr = fileStr;
 					this->keys.reserve(++w);
-					for (int i = 0; i < w; ++i)
+					for (size_t i = 0; i < w; ++i)
 						this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
-					for (int line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
+					for (size_t line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
 						ccsv::Data::Record record;
 						this->records.push_back(record);
-						this->records[line].record.push_back(token);
-						for (int i = 1; i < w; ++i)
-							this->records[line].record.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+						this->records[line].values.push_back(token);
+						for (size_t i = 1; i < w; ++i)
+							this->records[line].values.push_back(strtok_r(savePtr, delimPtr, &savePtr));
 					}
 					free(fileStr);
 					return 1;
@@ -99,5 +102,6 @@ int main()
 {
 	ccsv::Data data;
 	data.init(FILENAME);
+	data.print();
 	return 0;
 }
