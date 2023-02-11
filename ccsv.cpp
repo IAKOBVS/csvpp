@@ -28,7 +28,7 @@ namespace ccsv {
 			size_t keyIs(const char *toFind)
 			{
 				for (size_t i =0, j = this->keys.size(); i < j; ++i)
-					if (!this->keys[i].find(toFind))
+					if (this->keys[i].find(toFind) != std::string::npos)
 						return i;
 				perror("");
 				return 0;
@@ -44,7 +44,7 @@ namespace ccsv {
 			{
 				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
 					for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
-						if (!this->records[i].values[j].find(recordName))
+						if (this->records[i].values[j].find(recordName) != std::string::npos)
 							return j;
 				perror("");
 				return 0;
