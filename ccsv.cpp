@@ -22,29 +22,50 @@ namespace ccsv {
 					std::vector<std::string> record;
 			};
 
-			char *title;
+			const char *title;
 			std::vector<std::string> keys;
 			std::vector<Record> records;
 
-			int findKey(char *toFind)
+			size_t keyIs(const char *toFind)
 			{
 				for (int i =0, j = this->keys.size(); i < j; ++i)
-					if (this->keys[i].find(toFind))
+					if (!this->keys[i].find(toFind))
 						return i;
 				perror("");
 				return 0;
 			}
 
-			int findRecords(char *toFind)
+			int recordIs(const char *recordName)
+			{
+				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
+					for (size_t j = 0, vecLen = this->records[i].record.size(); j < vecLen; ++j)
+						if (!this->records[i].record[j].find("recordName"))
+							return j;
+				return 0;
+			}
+
+			void recordPrint(const char *recordName)
+			{
+				for (size_t i = 0, j = this->recordIs(recordName), vecLen = this->records.size(); i < vecLen; ++i)
+					std::cout << this->records[i].record[j] << '\n';
+			}
+
+			void keyPrint(const char *keyName)
+			{
+				for (size_t i = 0, at = this->keyIs(keyName), vecLen = this->records[at].record.size(); i < vecLen; ++i)
+					std::cout << this->records[i].record[at] << '\n';
+			}
+
+			int findRecords(const char *toFind)
 			{
 				return 1;
 			}
 
-			int init(char *filename)
+			int init(const char *filename)
 			{
 				do {
 					char *fileStr;
-					if (!::cat(filename, &fileStr))
+					if (!::cat((char *)filename, &fileStr))
 						break;
 					int w = 0;
 					char delim = ',';
@@ -67,6 +88,7 @@ namespace ccsv {
 					free(fileStr);
 					return 1;
 				} while (0);
+				perror("");
 				return 0;
 			}
 	};
