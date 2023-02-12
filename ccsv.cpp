@@ -5,27 +5,25 @@
 
 #include <string.h>
 /* #include <stdlib.h> */
-extern "C" {
 #include "/home/james/c/nix.c/nix.h"
 /* #include "/home/james/c/jArray/jarr.h" */
 /* #include "/home/james/c/jString/jstr.h" */
-}
 
-#define FILENAME (char *)"/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
+#define FILENAME "/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
 #define deb(THING) std::cout << THING << '\n'
 
 namespace ccsv {
 	class Data {
 		public:
 			struct Record {
-				std::vector<std::string> values;
+					std::vector<std::string> values;
 			};
 
 			const char *title;
 			std::vector<std::string> keys;
 			std::vector<Record> records;
 
-			size_t keyIs(const char *toFind)
+			size_t keysGetIter(const char *toFind)
 			{
 				for (size_t i =0, j = this->keys.size(); i < j; ++i)
 					if (this->keys[i].find(toFind) != std::string::npos)
@@ -36,11 +34,11 @@ namespace ccsv {
 
 			void keyPrint(const char *keyName)
 			{
-				for (size_t i = 0, at = this->keyIs(keyName), vecLen = this->records[at].values.size(); i < vecLen; ++i)
+				for (size_t i = 0, at = this->keysGetIter(keyName), vecLen = this->records[at].values.size(); i < vecLen; ++i)
 					std::cout << this->records[i].values[at] << '\n';
 			}
 
-			int recordIs(const char *recordName)
+			int recordGetIterator(const char *recordName)
 			{
 				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
 					for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
@@ -52,7 +50,7 @@ namespace ccsv {
 
 			void recordPrint(const char *recordName)
 			{
-				for (size_t i = 0, j = this->recordIs(recordName), vecLen = this->records.size(); i < vecLen; ++i)
+				for (size_t i = 0, j = this->recordGetIterator(recordName), vecLen = this->records.size(); i < vecLen; ++i)
 					std::cout << this->records[i].values[j] << '\n';
 			}
 
@@ -69,7 +67,7 @@ namespace ccsv {
 			{
 				do {
 					char *fileStr;
-					if (!::cat((char *)filename, &fileStr))
+					if (!nix::cat((char *)filename, &fileStr))
 						break;
 					size_t w = 0;
 					char delim = ',';
