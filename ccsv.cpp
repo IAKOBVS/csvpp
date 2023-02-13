@@ -1,5 +1,7 @@
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 #include <assert.h>
@@ -27,11 +29,6 @@ namespace ccsv {
 			size_t recordsLen()
 			{
 				return this->records.size();
-			}
-
-			size_t valuesLen()
-			{
-				return this->records[0].values.size();
 			}
 
 			size_t keysLen()
@@ -71,11 +68,20 @@ namespace ccsv {
 				std::cout << '\n';
 			}
 
-			void getRecord(const char *value)
+			void printRecord(const char *value)
 			{
-				for (size_t i = 0, j = this->valueIter(value), vecLen = this->records.size(); i < vecLen; ++i)
+				for (size_t i = 0, iLen = this->records.size(); i < iLen; ++i)
 					if (this->records[i].values.data()->find(value) != std::string::npos)
-						std::cout << this->records[i].values[j] << '\n';
+						for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
+							std::cout << this->records[i].values[j] << '\n';
+			}
+
+			size_t iterRecord(const char *value)
+			{
+				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
+					if (this->records[i].values.data()->find(value) != std::string::npos)
+						return i;
+				return 0;
 			}
 
 			void print(char delim)
@@ -100,7 +106,6 @@ namespace ccsv {
 					this->keys.reserve(w);
 					for (size_t i = 0, j = w; i < j; ++i)
 						this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
-					this->keysPrint(',');
 					for (size_t line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
 						ccsv::Data::Record record;
 						this->records.push_back(record);
@@ -120,10 +125,7 @@ namespace ccsv {
 int main(int argc, char **argv)
 {
 	ccsv::Data data;
-	data.init("/tmp/stocks", ',');
-	for (size_t i = 0, j = data.recordsLen(); i < j; ++i)
-		if (data.records[i].values.data()->find("UNVR") != std::string::npos)
-			for (int x = 0, len = data.valuesLen(); x < len; ++x)
-				std::cout << data.records[i].values[x] << '\n';
+	data.init(FILE_STOCKS, ',');
+	data.printRecord("UNVR");
 	return 0;
 }
