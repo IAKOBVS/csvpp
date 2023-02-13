@@ -102,7 +102,33 @@ namespace ccsv {
 					char *token;
 					char delimPtr[] = {(char)delim, '\n'};
 					char *savePtr = fileStr;
-					size_t w = nixWcwnl(fileStr, delim);
+					size_t w;
+					switch (delim) {
+					case ' ':
+						w = nixWcWordTilNl(fileStr);
+						break;
+					case '\t':
+						w = nixWcWordTilNlTab(fileStr);
+						break;
+					case ',':
+						w = nixWcWordTilNlComma(fileStr);
+						break;
+					case '.':
+						w = nixWcWordTilNlDot(fileStr);
+						break;
+					case '|':
+						w = nixWcWordTilNlPipe(fileStr);
+						break;
+					case '\'':
+						w = nixWcWordTilNlQuote(fileStr);
+						break;
+					case '"':
+						w = nixWcWordTilNlDoubleQuote(fileStr);
+						break;
+					default:
+						free(fileStr);
+						continue;
+					}
 					this->keys.reserve(w);
 					for (size_t i = 0, j = w; i < j; ++i)
 						this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
