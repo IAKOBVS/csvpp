@@ -2,20 +2,21 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <assert.h>
 
 #include <string.h>
-/* #include <stdlib.h> */
+#include <stdlib.h>
 #include "/home/james/c/nix.c/nix.h"
-/* #include "/home/james/c/jArray/jarr.h" */
-/* #include "/home/james/c/jString/jstr.h" */
 
 #define FILENAME "/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
+#define FILE_STOCKS "/tmp/stocks-nix/stocks/Balancepos20221230.txt"
 #define deb(THING) std::cout << THING << '\n'
 
 namespace ccsv {
 	class Data {
 		public:
-			struct Record {
+			class Record {
+				public:
 					std::vector<std::string> values;
 			};
 
@@ -23,7 +24,22 @@ namespace ccsv {
 			std::vector<std::string> keys;
 			std::vector<Record> records;
 
-			size_t keysGetIter(const char *toFind)
+			size_t recordsLen()
+			{
+				return this->records.size();
+			}
+
+			size_t valuesLen()
+			{
+				return this->records[0].values.size();
+			}
+
+			size_t keysLen()
+			{
+				return this->keys.size();
+			}
+
+			size_t keysIter(const char *toFind)
 			{
 				for (size_t i =0, j = this->keys.size(); i < j; ++i)
 					if (this->keys[i].find(toFind) != std::string::npos)
@@ -32,60 +48,65 @@ namespace ccsv {
 				return 0;
 			}
 
-			void keyPrint(const char *keyName)
-			{
-				for (size_t i = 0, at = this->keysGetIter(keyName), vecLen = this->records[at].values.size(); i < vecLen; ++i)
-					std::cout << this->records[i].values[at] << '\n';
-			}
-
-			int recordGetIterator(const char *recordName)
+			size_t valueIter(const char *value)
 			{
 				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
 					for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
-						if (this->records[i].values[j].find(recordName) != std::string::npos)
+						if (this->records[i].values[j].find(value) != std::string::npos)
 							return j;
 				perror("");
 				return 0;
 			}
 
-			void recordPrint(const char *recordName)
+			void keyPrint(const char *key)
 			{
-				for (size_t i = 0, j = this->recordGetIterator(recordName), vecLen = this->records.size(); i < vecLen; ++i)
-					std::cout << this->records[i].values[j] << '\n';
+				for (size_t i = 0, at = this->keysIter(key), vecLen = this->records[at].values.size(); i < vecLen; ++i)
+					std::cout << this->records[i].values[at] << '\n';
 			}
 
-			void print()
+			void keysPrint(char delim)
+			{
+				for (auto key : this->keys)
+					std::cout << key << delim; 
+				std::cout << '\n';
+			}
+
+			void getRecord(const char *value)
+			{
+				for (size_t i = 0, j = this->valueIter(value), vecLen = this->records.size(); i < vecLen; ++i)
+					if (this->records[i].values.data()->find(value) != std::string::npos)
+						std::cout << this->records[i].values[j] << '\n';
+			}
+
+			void print(char delim)
 			{
 				for (size_t i = 0, iLen = this->records.size(); i < iLen; ++i) {
 					for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
-						std::cout << this->records[i].values[j] << ' ';
+						std::cout << this->records[i].values[j] << delim;
 					std::cout << '\n';
 				}
 			}
 
-			int init(const char *filename)
+			int init(const char *filename, int delim)
 			{
 				do {
 					char *fileStr;
-					if (!nix::cat((char *)filename, &fileStr))
+					if (!nixCat((char *)filename, &fileStr))
 						break;
-					size_t w = 0;
-					char delim = ',';
-					for (int i = 0; fileStr[i] != '\n' && fileStr[i]; ++i)
-						if (fileStr[i] == delim)
-							++w;
 					char *token;
-					char delimPtr[] = {delim, '\n'};
+					char delimPtr[] = {(char)delim, '\n'};
 					char *savePtr = fileStr;
-					this->keys.reserve(++w);
-					for (size_t i = 0; i < w; ++i)
+					size_t w = nixWcwnl(fileStr, delim);
+					this->keys.reserve(w);
+					for (size_t i = 0, j = w; i < j; ++i)
 						this->keys.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+					this->keysPrint(',');
 					for (size_t line = 0; (token = strtok_r(savePtr, delimPtr, &savePtr)); ++line) {
 						ccsv::Data::Record record;
 						this->records.push_back(record);
 						this->records[line].values.push_back(token);
-						for (size_t i = 1; i < w; ++i)
-							this->records[line].values.push_back(strtok_r(savePtr, delimPtr, &savePtr));
+						for (size_t i = 1; i < w && (token = strtok_r(savePtr, delimPtr, &savePtr)); ++i)
+							this->records[line].values.push_back(token);
 					}
 					free(fileStr);
 					return 1;
@@ -93,13 +114,16 @@ namespace ccsv {
 				perror("");
 				return 0;
 			}
+
 	};
 }
-
-int main()
+int main(int argc, char **argv)
 {
 	ccsv::Data data;
-	data.init(FILENAME);
-	data.print();
+	data.init("/tmp/stocks", ',');
+	for (size_t i = 0, j = data.recordsLen(); i < j; ++i)
+		if (data.records[i].values.data()->find("UNVR") != std::string::npos)
+			for (int x = 0, len = data.valuesLen(); x < len; ++x)
+				std::cout << data.records[i].values[x] << '\n';
 	return 0;
 }
