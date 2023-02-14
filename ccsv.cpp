@@ -1,11 +1,11 @@
 #include <algorithm>
-#include <cstdio>
 #include <iostream>
 #include <ostream>
 #include <string>
 #include <vector>
 #include <assert.h>
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "/home/james/c/nix.c/nix.h"
@@ -13,6 +13,25 @@
 #define FILENAME "/home/james/.local/bin/nix-db/db/upah-tukang_pryk-ns-lk_1.tsv"
 #define FILE_STOCKS "/tmp/stocks-nix/stocks/Balancepos20221230.txt"
 #define deb(THING) std::cout << THING << '\n'
+
+#define THIS_EACH_KEY(VAR, VAR_LEN) \
+	int VAR = 0, VAR_LEN = this->keysLen(); VAR < VAR_LEN; ++VAR
+
+#define THIS_EACH_RECORD(VAR, VAR_LEN) \
+	int VAR = 0, VAR_LEN = this->recordsLen(); VAR < VAR_LEN; ++VAR
+
+#define THIS_EACH_VALUES(VAR, VAR_LEN, VAR_BEFORE) \
+	int VAR = 0, VAR_LEN = this->records[VAR_BEFORE].values.size(); VAR < VAR_LEN; ++VAR
+
+#define EACH_KEY(DATA, VAR, VAR_LEN) \
+	int VAR = 0, VAR_LEN = DATA . keysLen(); VAR < VAR_LEN; ++VAR
+
+#define EACH_RECORD(DATA, VAR, VAR_LEN) \
+	int VAR = 0, VAR_LEN = DATA . recordsLen(); VAR < VAR_LEN; ++VAR
+
+#define EACH_VALUES(DATA, VAR, VAR_LEN, VAR_BEFORE) \
+	int VAR = 0, VAR_LEN = DATA . records[VAR_BEFORE].values.size(); VAR < VAR_LEN; ++VAR
+
 
 namespace ccsv {
 	class Data {
@@ -36,44 +55,34 @@ namespace ccsv {
 				return this->keys.size();
 			}
 
-			size_t keysIter(const char *toFind)
+			size_t iterKey(const char *key)
 			{
 				for (size_t i =0, j = this->keys.size(); i < j; ++i)
-					if (this->keys[i].find(toFind) != std::string::npos)
+					if (!strcmp(this->keys[i].c_str(), key))
 						return i;
 				perror("");
 				return 0;
 			}
 
-			size_t valueIter(const char *value)
+			void printKey(const char *key)
 			{
-				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
-					for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
-						if (this->records[i].values[j].find(value) != std::string::npos)
-							return j;
-				perror("");
-				return 0;
-			}
-
-			void keyPrint(const char *key)
-			{
-				for (size_t i = 0, at = this->keysIter(key), vecLen = this->records[at].values.size(); i < vecLen; ++i)
+				for (size_t i = 0, at = this->iterKey(key), vecLen = this->records[at].values.size(); i < vecLen; ++i)
 					std::cout << this->records[i].values[at] << '\n';
 			}
 
-			void keysPrint(char delim)
+			void printKeys(char delim)
 			{
 				for (auto key : this->keys)
 					std::cout << key << delim; 
 				std::cout << '\n';
 			}
 
-			void printRecord(const char *value)
+			int ValInRecord(const char *value, size_t i)
 			{
-				for (size_t i = 0, iLen = this->records.size(); i < iLen; ++i)
-					if (this->records[i].values.data()->find(value) != std::string::npos)
-						for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
-							std::cout << this->records[i].values[j] << '\n';
+				for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
+					if (!strcmp(this->records[i].values[j].c_str(), value))
+						return 1;
+				return 0;
 			}
 
 			size_t iterRecord(const char *value)
@@ -84,12 +93,69 @@ namespace ccsv {
 				return 0;
 			}
 
+			int isEquity(int i)
+			{
+				if (!strcmp(this->records[i].values[iterKey("Type")].c_str(), "EQUITY"))
+					return 1;
+				return 0;
+			}
+
+			void printRecordsIfValue(const char *value, char delim)
+			{
+				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
+					if (this->ValInRecord(value, i)) {
+						if (isEquity(i)) {
+							for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
+								std::cout << this->records[i].values[j] << delim;
+							std::cout << '\n';
+						}
+					}
+			}
+
+			void printForeignVal()
+			{
+				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
+					if (isEquity(i))
+						std::cout << this->records[i].values[this->iterKey("Code")] << ' ' << strtol(this->records[i].values[this->iterKey("Foreign Percent")].c_str(), NULL, 10) << ' ' << strtol(this->records[i].values[this->iterKey("Individual Percent")].c_str(), NULL, 10) << '\n';
+			}
+
 			void print(char delim)
 			{
 				for (size_t i = 0, iLen = this->records.size(); i < iLen; ++i) {
 					for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
 						std::cout << this->records[i].values[j] << delim;
 					std::cout << '\n';
+				}
+			}
+
+			void correctKey()
+			{
+				this->keys.push_back("Total");
+				this->keys.push_back("Individual Percent");
+				this->keys.push_back("Foreign Percent");
+				this->keys.push_back("Local Percent");
+				for (int k = 0, kLen = this->keysLen(); k < kLen; ++k)
+					if (this->keys[k].find("Total") != std::string::npos) {
+						if (this->keys[k - 1].find("Local") != std::string::npos)
+							this->keys[k].assign("Total Local");
+						else
+							this->keys[k].assign("Total Foreign");
+					}
+				for (int r = 0, rLen = this->records.size() - 1; r < rLen; ++r) {
+					double localVal = strtod(this->records[r].values[this->iterKey("Total Local")].c_str(), NULL);
+					double foreignVal = strtod(this->records[r].values[this->iterKey("Total Foreign")].c_str(), NULL);
+					double individualVal = strtod(this->records[r].values[this->iterKey("Local ID")].c_str(), NULL);
+					double totalVal = localVal + foreignVal;
+					this->records[r].values.push_back(std::to_string(totalVal));
+					if (localVal && foreignVal) {
+						this->records[r].values.push_back(std::to_string(localVal / totalVal * 100));
+						this->records[r].values.push_back(std::to_string(foreignVal / totalVal * 100));
+						this->records[r].values.push_back(std::to_string(individualVal / totalVal * 100));
+					} else {
+						this->records[r].values.push_back("0");
+						this->records[r].values.push_back("0");
+						this->records[r].values.push_back("0");
+					}
 				}
 			}
 
@@ -126,7 +192,6 @@ namespace ccsv {
 						w = nixWcWordTilNlDoubleQuote(fileStr);
 						break;
 					default:
-						free(fileStr);
 						continue;
 					}
 					this->keys.reserve(w);
@@ -140,6 +205,7 @@ namespace ccsv {
 							this->records[line].values.push_back(token);
 					}
 					free(fileStr);
+					this->correctKey();
 					return 1;
 				} while (0);
 				perror("");
@@ -148,10 +214,12 @@ namespace ccsv {
 
 	};
 }
+
 int main(int argc, char **argv)
 {
 	ccsv::Data data;
-	data.init(FILE_STOCKS, ',');
-	data.printRecord("UNVR");
+	data.init(FILE_STOCKS, '|');
+	/* data.printKeys('|'); */
+	data.printForeignVal();
 	return 0;
 }
