@@ -162,9 +162,9 @@ namespace ccsv {
 			int init(const char *filename, int delim)
 			{
 				do {
-					char *fileStr;
-					if (!nixCat((char *)filename, &fileStr))
-						break;
+					size_t fileSize = nixSizeOfFile(filename);
+					char *fileStr = (char *)malloc(nixSizeOfFile(filename) + 1);
+					if (!nixCatFast(filename, fileSize, fileStr)) break;
 					char *token;
 					char delimPtr[] = {(char)delim, '\n'};
 					char *savePtr = fileStr;
