@@ -77,7 +77,7 @@ namespace ccsv {
 				std::cout << '\n';
 			}
 
-			int ValInRecord(const char *value, size_t i)
+			int valInRecord(const char *value, size_t i)
 			{
 				for (size_t j = 0, jLen = this->records[i].values.size(); j < jLen; ++j)
 					if (!strcmp(this->records[i].values[j].c_str(), value))
@@ -103,7 +103,7 @@ namespace ccsv {
 			void printRecordsIfValue(const char *value, char delim)
 			{
 				for (size_t i = 0, vecLen = this->records.size(); i < vecLen; ++i)
-					if (this->ValInRecord(value, i)) {
+					if (this->valInRecord(value, i)) {
 						if (isEquity(i)) {
 							for (size_t j = 0, vecLen = this->records[i].values.size(); j < vecLen; ++j)
 								std::cout << this->records[i].values[j] << delim;
